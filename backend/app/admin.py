@@ -10,7 +10,7 @@ class IngredientsAmountInline(admin.TabularInline):
     extra = 1
 
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author')
+    list_display = ('name', 'author', 'display_tags')
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author__username', 'author__last_name',
                      'author__first_name', 'tags__name')
@@ -24,8 +24,12 @@ class RecipeAdmin(admin.ModelAdmin):
     def shopping_count(self, obj):
         return obj.shopcarts.count()
 
+    def display_tags(self, obj):
+        return ', '.join([tag.name for tag in obj.tags.all()])
+
     favorite_count.short_description = 'В избранном'
     shopping_count.short_description = 'В списке покупок'
+    display_tags.short_description = 'Теги'
 
 
 class IngredientAdmin(admin.ModelAdmin):
