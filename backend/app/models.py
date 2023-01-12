@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MinLengthValidator
 
 
 User = get_user_model()
@@ -12,7 +12,7 @@ class Ingredient(models.Model):
     Уникальные поля: name, measurement_unit.
     """
     name = models.CharField(
-        'Название ингредиента',
+        'Название',
         max_length=100,
         db_index=True
     )
@@ -24,6 +24,7 @@ class Ingredient(models.Model):
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
@@ -41,22 +42,26 @@ class Tag(models.Model):
     Уникальные поля: name, color, slug.
     """
     name = models.CharField(
-        'Название тега', max_length=100
+        'Название', max_length=100, db_index=True, unique=True
     )
     color = models.CharField(
-        'HEX-код',
+        'Цветовой HEX-код',
         max_length=7,
-        default='#'
+        unique=True,
+        default='#',
+        validators=[
+            MinLengthValidator(
+                7, message='Длина цветового hex-кода должна быть равна 7')
+        ]
     )
     slug = models.SlugField(
-        'Слаг тега',
-        max_length=100,
-        unique=True,
+        'Слаг', max_length=100, unique=True,
     )
 
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
                 fields=['name', 'color', 'slug'],
@@ -84,7 +89,8 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         'Название',
-        max_length=256
+        max_length=256,
+        db_index=True
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -173,7 +179,7 @@ class IngredientsAmount(models.Model):
 
 
     def __str__(self):
-        return (f'{self.recipe.name}: {self.ingredient.name} - '
+        return (f'{self.recipe.name}: {self.ingredient.name}'
                 f'{self.amount}, {self.ingredient.measurement_unit}')
 
 
