@@ -8,6 +8,7 @@ class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'first_name', 'last_name', 'email')
     list_filter = ('email', 'first_name')
     search_fields = ('username', 'email')
+    save_on_top = True
     empty_value_display = '--пусто--'
 
 site.unregister(Group)

@@ -78,12 +78,13 @@ class Follow(Model):
             )
         ]
 
-    def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
-    ):
+    def clean(self):
         if self.user == self.author:
-            raise ValidationError("Невозможно подписаться на себя")
-        super().save()
+            raise ValidationError('Невозможно подписаться на себя')
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return f'Автор: {self.author}, подписчик: {self.user}'
