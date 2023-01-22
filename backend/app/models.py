@@ -1,3 +1,4 @@
+import rest_framework.serializers
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, MinLengthValidator
@@ -116,11 +117,10 @@ class Recipe(models.Model):
         null=False,
         validators=[
             MinValueValidator(
-                1, message='Время должно быть больше/равно 1 минуты'
+                1, message='Время должно быть больше/равно 1'
             )
         ],
         help_text='Укажите время в минутах',
-        default=1
     )
     pub_date = models.DateTimeField(
         'Дата публикации',

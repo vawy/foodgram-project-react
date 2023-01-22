@@ -1,5 +1,4 @@
-from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
+from rest_framework.exceptions import ValidationError
 from django.db.models import (
     CharField, EmailField, UniqueConstraint, Model, ForeignKey, CASCADE
 )
@@ -12,33 +11,20 @@ class CustomUser(AbstractUser):
     """
     first_name = CharField(
         'Имя',
-        max_length=200,
+        max_length=150
     )
     last_name = CharField(
         'Фамилия',
-        max_length=200,
-    )
-    username = CharField(
-        'Логин',
-        unique=True,
-        max_length=150,
-        validators=[
-            RegexValidator(
-                r'^[0-9a-zA-Z]*$',
-                message='Введите логин как указано в подсказке'
-            )
-        ],
-        help_text='Логин может состоять только из латинских букв и цифр'
+        max_length=150
     )
     email = EmailField(
         'Email',
         unique=True,
         max_length=200
     )
-    password = CharField(
-        'Пароль',
-        max_length=200
-    )
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
 
     class Meta:
         verbose_name = 'Пользователь'
@@ -49,6 +35,16 @@ class CustomUser(AbstractUser):
                 name='unique_user'
             )
         ]
+
+    def clean(self):
+        if self.username == 'me':
+            raise ValidationError(
+                {'error': 'Невозможно создать пользователя с именем me'}
+            )
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.username
@@ -80,7 +76,9 @@ class Follow(Model):
 
     def clean(self):
         if self.user == self.author:
-            raise ValidationError('Невозможно подписаться на себя')
+            raise ValidationError(
+                {'error': 'Невозможно подписаться на себя'}
+            )
 
     def save(self, *args, **kwargs):
         self.full_clean()

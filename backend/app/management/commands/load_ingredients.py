@@ -1,20 +1,18 @@
-import os
 import csv
+import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from app.models import Ingredient
 
-
-DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
+DATA_ROOT = os.path.join(settings.BASE_DIR.parent, 'data')
 
 
 class Command(BaseCommand):
     """
-    Импортируем ингредиенты из файла ingredients.csv
+    Добавляем ингредиенты из файла CSV
     """
-    help = 'Импортируем ингредиенты'
 
     def add_arguments(self, parser):
         parser.add_argument('filename', default='ingredients.csv', nargs='?',
@@ -22,11 +20,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            with open(
-                    os.path.join(DATA_ROOT, options['filename']),
-                    'r',
-                    encoding='utf-8'
-            ) as f:
+            with open(os.path.join(DATA_ROOT, options['filename']), 'r',
+                      encoding='utf-8') as f:
                 data = csv.reader(f)
                 for row in data:
                     name, measurement_unit = row
@@ -34,7 +29,8 @@ class Command(BaseCommand):
                         name=name,
                         measurement_unit=measurement_unit
                     )
+                self.stdout.write(
+                    self.style.SUCCESS('=== Ингредиенты успешно загружены ===')
+                )
         except FileNotFoundError:
-            raise CommandError(
-                'Добавьте файл ingredients в директорию data'
-            )
+            raise CommandError('Добавьте файл ingredients в директорию data')
