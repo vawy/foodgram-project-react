@@ -1,13 +1,13 @@
-from django.contrib.admin import TabularInline, ModelAdmin, site
+from django.contrib.admin import ModelAdmin, TabularInline, site
 
-from .models import (
-    Ingredient, Tag, Recipe, Favorite, ShoppingCart, IngredientsAmount
-)
+from .models import (Favorite, Ingredient, IngredientsAmount, Recipe,
+                     ShoppingCart, Tag)
 
 
 class IngredientsAmountInline(TabularInline):
     model = IngredientsAmount
     extra = 1
+
 
 class RecipeAdmin(ModelAdmin):
     list_display = ('name', 'author', 'display_tags')

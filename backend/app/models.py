@@ -1,10 +1,10 @@
-import rest_framework.serializers
-from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.validators import MinValueValidator, MinLengthValidator
-
+from django.core.validators import MinLengthValidator, MinValueValidator
+from django.db import models
 
 User = get_user_model()
+
+RECIPE_NAME_PREVIEW = 20
 
 
 class Ingredient(models.Model):
@@ -134,7 +134,7 @@ class Recipe(models.Model):
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.name[:20]
+        return self.name[:RECIPE_NAME_PREVIEW]
 
 
 class IngredientsAmount(models.Model):
@@ -176,7 +176,6 @@ class IngredientsAmount(models.Model):
                 name='unique_recipe_ingredient'
             )
         ]
-
 
     def __str__(self):
         return (f'{self.recipe.name}: {self.ingredient.name}'

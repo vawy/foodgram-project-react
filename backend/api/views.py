@@ -1,36 +1,27 @@
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import (
-    ReadOnlyModelViewSet, ModelViewSet
-)
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
+from app.models import Ingredient, IngredientsAmount, Recipe, Tag
+from users.models import CustomUser, Follow
 
-from .serializers import (
-    CustomUserSerializer,
-    TagSerializer,
-    IngredientSerializer,
-    RecipeListSerializer,
-    FollowSerializer,
-    RecipeCreateUpdateSerializer,
-    FavoriteRecipeSerializer,
-    ShoppingCartSerializer
-)
+from .filters import IngredientFilter, RecipeFilter
 from .paginations import LimitPagination
 from .permissions import AuthorStaffOrReadOnly
-from .filters import IngredientFilter, RecipeFilter
-from users.models import Follow, CustomUser
-from app.models import (
-    Ingredient, Tag, Recipe, Favorite, IngredientsAmount
-)
+from .serializers import (CustomUserSerializer, FavoriteRecipeSerializer,
+                          FollowSerializer, IngredientSerializer,
+                          RecipeCreateUpdateSerializer, RecipeListSerializer,
+                          ShoppingCartSerializer, TagSerializer)
 
 
 class UsersViewSet(UserViewSet):
@@ -48,7 +39,7 @@ class UsersViewSet(UserViewSet):
         authors = CustomUser.objects.filter(followings__user=user)
         page = self.paginate_queryset(authors)
         serializer = FollowSerializer(
-            page, many=True, context={'request':request}
+            page, many=True, context={'request': request}
         )
         return self.get_paginated_response(serializer.data)
 
@@ -79,11 +70,13 @@ class UsersViewSet(UserViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+
 class TagViewSet(ReadOnlyModelViewSet):
     """Вьюсет для получения тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
+
 
 class IngredientViewSet(ReadOnlyModelViewSet):
     """Вьюсет для получения ингердиентов."""
@@ -101,6 +94,7 @@ class RecipeViewSet(ModelViewSet):
     filterset_class = RecipeFilter
     permission_classes = [AuthorStaffOrReadOnly]
     pagination_class = LimitPagination
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -133,15 +127,15 @@ class RecipeViewSet(ModelViewSet):
             return Response({'error': 'Этого рецепта нет в избранном.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    @action(
-        methods=['POST', 'DELETE'], detail=True, permission_classes=[IsAuthenticated]
-    )
+    @action(methods=['POST', 'DELETE'],
+            detail=True,
+            permission_classes=[IsAuthenticated])
     def favorite(self, request, pk):
         return self.action_post_delete(pk, FavoriteRecipeSerializer)
 
-    @action(
-        methods=['POST', 'DELETE'], detail=True, permission_classes=[IsAuthenticated]
-    )
+    @action(methods=['POST', 'DELETE'],
+            detail=True,
+            permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
         return self.action_post_delete(pk, ShoppingCartSerializer)
 
@@ -149,21 +143,23 @@ class RecipeViewSet(ModelViewSet):
         methods=['GET'], detail=False, permission_classes=[IsAuthenticated]
     )
     def download_shopping_cart(self, request):
-        final_list = {}
+        user = self.request.user
+        if not user.shopcarts.exists():
+            return Response(
+                {'shopcarts': 'Список покупок пуст.'}
+            )
         ingredients = IngredientsAmount.objects.filter(
-            recipe__shopcarts__user=request.user).values_list(
-            'ingredient__name', 'ingredient__measurement_unit',
-            'amount'
-        )
-        for item in ingredients:
-            name = item[0]
-            if name not in final_list:
-                final_list[name] = {
-                    'measurement_unit': item[1],
-                    'amount': item[2]
-                }
-            else:
-                final_list[name]['amount'] += item[2]
+            recipe__shopcarts__user=request.user
+        ).values_list(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).annotate(amount=Sum('amount'))
+        final_list = {}
+        for ingredient in ingredients:
+            item = ingredient[0]
+            final_list[item] = {
+                'measurement_unit': ingredient[1],
+                'amount': ingredient[2]
+            }
         pdfmetrics.registerFont(
             TTFont('arial', '../data/arial.ttf', 'UTF-8'))
         response = HttpResponse(content_type='application/pdf')

@@ -1,9 +1,8 @@
 from django.db.models import BooleanField, ExpressionWrapper, Q
-from django_filters.rest_framework import (
-    FilterSet, filters, CharFilter
-)
+from django_filters.rest_framework import CharFilter, FilterSet, filters
 
 from app.models import Ingredient, Recipe
+
 
 class IngredientFilter(FilterSet):
     """Фильтр ингредиентов по названию."""
@@ -21,6 +20,7 @@ class IngredientFilter(FilterSet):
                 Q(name__istartswith=value), output_field=BooleanField()
             )
         ).order_by('-startswith')
+
 
 class RecipeFilter(FilterSet):
     """Фильтр рецептов по автору/тегу/подписке/наличию в списке покупок."""

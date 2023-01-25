@@ -1,8 +1,8 @@
-from rest_framework.exceptions import ValidationError
-from django.db.models import (
-    CharField, EmailField, UniqueConstraint, Model, ForeignKey, CASCADE
-)
 from django.contrib.auth.models import AbstractUser
+from django.db.models import (CASCADE, CharField, EmailField, ForeignKey,
+                              Model, UniqueConstraint)
+from rest_framework.exceptions import ValidationError
+
 
 class CustomUser(AbstractUser):
     """
@@ -41,7 +41,7 @@ class CustomUser(AbstractUser):
             raise ValidationError(
                 {'error': 'Невозможно создать пользователя с именем me'}
             )
-    
+
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
