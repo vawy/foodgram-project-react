@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
@@ -7,8 +6,6 @@ from app.models import (Favorite, Ingredient, IngredientsAmount, Recipe,
 from users.models import CustomUser, Follow
 
 from .utils import Base64ImageField
-
-User = get_user_model()
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
@@ -106,7 +103,7 @@ class RecipeListSerializer(serializers.ModelSerializer):
             'name',
             'image',
             'text',
-            'cooking_time',
+            'cooking_time'
         )
         read_only_fields = ['__all__']
 
@@ -149,10 +146,8 @@ class RecipeCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = (
-            'id', 'author', 'ingredients', 'tags',
-            'image', 'name', 'text', 'cooking_time'
-        )
+        fields = ('id', 'author', 'ingredients', 'tags',
+                  'image', 'name', 'text', 'cooking_time')
 
     def validate(self, data):
         ingredients = data['ingredients']

@@ -1,14 +1,14 @@
-from django.db.models import Sum
+from datetime import datetime
+from django.db.models import Sum, F
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly, SAFE_METHODS
+)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
@@ -31,9 +31,11 @@ class UsersViewSet(UserViewSet):
     """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
+    permission_classes = [AllowAny]
     add_serializer = FollowSerializer
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['GET'], detail=False,
+            permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         user = self.request.user
         authors = CustomUser.objects.filter(followings__user=user)
@@ -43,7 +45,8 @@ class UsersViewSet(UserViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @action(methods=['POST', 'DELETE'], detail=True)
+    @action(methods=['POST', 'DELETE'], detail=True,
+            permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
         user = self.request.user
         author = get_object_or_404(CustomUser, id=id)
@@ -75,6 +78,7 @@ class TagViewSet(ReadOnlyModelViewSet):
     """Вьюсет для получения тегов."""
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = None
 
 
@@ -84,7 +88,9 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
+    permission_classes = [IsAuthenticatedOrReadOnly]
     search_fields = ('^name',)
+    pagination_class = None
 
 
 class RecipeViewSet(ModelViewSet):
@@ -97,7 +103,7 @@ class RecipeViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in SAFE_METHODS:
             return RecipeListSerializer
         return RecipeCreateUpdateSerializer
 
@@ -127,53 +133,41 @@ class RecipeViewSet(ModelViewSet):
             return Response({'error': 'Этого рецепта нет в избранном.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['POST', 'DELETE'],
-            detail=True,
+    @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
-    def favorite(self, request, pk):
+    def favorite(self, request, pk=None):
         return self.action_post_delete(pk, FavoriteRecipeSerializer)
 
-    @action(methods=['POST', 'DELETE'],
-            detail=True,
+    @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
-    def shopping_cart(self, request, pk):
+    def shopping_cart(self, request, pk=None):
         return self.action_post_delete(pk, ShoppingCartSerializer)
 
-    @action(
-        methods=['GET'], detail=False, permission_classes=[IsAuthenticated]
-    )
+    @action(methods=['GET'], detail=False,
+            permission_classes=[IsAuthenticated], pagination_class=None)
     def download_shopping_cart(self, request):
-        user = self.request.user
+        user = request.user
         if not user.shopcarts.exists():
-            return Response(
-                {'shopcarts': 'Список покупок пуст.'}
-            )
+            return Response({'error': 'Список покупок пуст'},
+                            status=status.HTTP_204_NO_CONTENT)
         ingredients = IngredientsAmount.objects.filter(
-            recipe__shopcarts__user=request.user
-        ).values_list(
-            'ingredient__name', 'ingredient__measurement_unit'
+            recipe__shopcarts__user=user
+        ).values(
+            ingredients=F('ingredient__name'),
+            measure=F('ingredient__measurement_unit')
         ).annotate(amount=Sum('amount'))
-        final_list = {}
-        for ingredient in ingredients:
-            item = ingredient[0]
-            final_list[item] = {
-                'measurement_unit': ingredient[1],
-                'amount': ingredient[2]
-            }
-        pdfmetrics.registerFont(
-            TTFont('arial', '../data/arial.ttf', 'UTF-8'))
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = ('attachment; '
-                                           'filename="shopping_list.pdf"')
-        page = canvas.Canvas(response)
-        page.setFont('arial', size=24)
-        page.drawString(200, 800, 'Список покупок')
-        page.setFont('arial', size=16)
-        height = 750
-        for i, (name, data) in enumerate(final_list.items(), 1):
-            page.drawString(75, height, (f'{i}. {name} - {data["amount"]} '
-                                         f'{data["measurement_unit"]}'))
-            height -= 25
-        page.showPage()
-        page.save()
+
+        filename = f'{user.username}_shopping_list.txt'
+        shopping_list = (
+            f'Список покупок\n\n{user.username}\n'
+            f'{datetime.now().strftime("%d/%m/%Y %H:%M")}\n\n'
+        )
+        for ing in ingredients:
+            shopping_list += (
+                f'{ing["ingredients"]} - {ing["amount"]}, {ing["measure"]}\n'
+            )
+        response = HttpResponse(
+            shopping_list, content_type='text.txt; charset=utf-8'
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
         return response

@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from app.models import Ingredient
 
-DATA_ROOT = os.path.join(settings.BASE_DIR.parent, 'data')
+DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
