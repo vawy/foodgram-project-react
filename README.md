@@ -1,9 +1,44 @@
-# Описание
-**Проект Foodgram - Продуктовый помощник**
+![workflow status](https://github.com/vawy/foodgram-project-react/actions/workflows/main.yml/badge.svg)
 
-![workflow](https://github.com/vawy/foodgram-project-react/actions/workflows/main.yml/badge.svg) 
+## Описание
+
+#### Проект Foodgram – Продуктовый помощник
+На этом сервисе пользователи смогут публиковать рецепты, подписываться 
+на публикации других пользователей, добавлять понравившиеся рецепты в список
+«Избранное», а перед походом в магазин скачивать сводный список 
+продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
+
+#### Что могут делать неавторизованные пользователи
+- Создать аккаунт.
+- Просматривать рецепты на главной.
+- Просматривать отдельные страницы рецептов.
+- Просматривать страницы пользователей.
+- Фильтровать рецепты по тегам.
+#### Что могут делать авторизованные пользователи
+- Входить в систему под своим логином и паролем.
+- Выходить из системы (разлогиниваться).
+- Менять свой пароль.
+- Создавать/редактировать/удалять собственные рецепты
+- Просматривать рецепты на главной.
+- Просматривать страницы пользователей.
+- Просматривать отдельные страницы рецептов.
+- Фильтровать рецепты по тегам.
+- Работать с персональным списком избранного: добавлять в него рецепты или удалять их, просматривать свою страницу избранных рецептов.
+- Работать с персональным списком покупок: добавлять/удалять любые рецепты, выгружать файл с количеством необходимых ингредиентов для рецептов из списка покупок.
+- Подписываться на публикации авторов рецептов и отменять подписку, просматривать свою страницу подписок.
+#### Что может делать администратор
+Администратор обладает всеми правами авторизованного пользователя.
+Плюс к этому он может:
+- изменять пароль любого пользователя,
+- создавать/блокировать/удалять аккаунты пользователей,
+- редактировать/удалять любые рецепты,
+- добавлять/удалять/редактировать ингредиенты.
+- добавлять/удалять/редактировать теги.
+
+Все эти функции реализованы в стандартной админ-панели Django.
 
 ### Технологии
+
 - Python 3.10
 - Django 4.1
 - Django REST Framework 3.14
@@ -11,82 +46,81 @@
 - Nginx
 - PostgreSQL
 - Docker
-- GitHub Actions
 
-[foodgram2023.hopto.org](foodgram2023.hopto.org)
+### Запуск проекта локально
 
-### Развертка и запуск проекта локально
-
-#### Клонирование репозитория
-Клонировать репозиторий и перейти в него в командной строке:
-
+- Клонирование удаленного репозитория
+```bash
+git clone git@github.com:vawy/foodgram-project-react.git
+cd infra
 ```
-git@github.com:vawy/foodgram-project-react.git
-cd foodgram-project-react
+- В директории /infra создайте файл .env, с переменными окружения:
+```bash
+SECRET_KEY=<Your_some_long_string>
+DB_ENGINE='django.db.backends.postgresql'
+DB_NAME='postgres'
+POSTGRES_USER='postgres'
+POSTGRES_PASSWORD=<Your_password>
+DB_HOST='db'
+DB_PORT=5432
 ```
-
-#### Изменение файлов
-
-- Добавить .env в корень проекта
-
-#### Запуск проекта
+- Сборка и развертывание контейнеров
+```bash
+docker-compose up -d --build
 ```
-cd infra/
-docker-compose -d --build
-```
-
-#### Миграции проекта, добавление юзера, сбор статики
-```
+- Выполните миграции, соберите статику, создайте суперпользователя
+```bash
+docker-compose exec backend python manage.py makemigrations
 docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py createsuperuser
 docker-compose exec backend python manage.py collectstatic --no-input
-docker-compose exec backend python manage.py load_ingredients 
+docker-compose exec backend python manage.py createsuperuser
 ```
+- Наполните базу данных ингредиентами
+```bash
+docker-compose exec backend python manage.py load_ingredients
+```
+- или наполните базу тестовыми данными (включают посты и пользователей)
+```bash
+docker-compose exec backend python manage.py loaddata data/data.json 
+```
+- Стандартная админ-панель Django доступна по адресу [`https://localhost/admin/`](https://localhost/admin/)
+- Документация к проекту доступна по адресу [`https://localhost/api/docs/`](`https://localhost/api/docs/`)
 
-P.s. Добавить `winpty` при ошибке:
-`
-the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'
-`
-    
-### API
-Документация API доступна по следующему эндпоинту:
+### Запуск API проекта в dev-режиме
 
-    http://<project_ip>/api/redoc
-
-#### Регистрация
-Для регистрации отправьте POST-запрос на эндпоит `api/v1/auth/signup/`, в теле запроса укажите:
-```JSON
-{
-    "username": "your_username",
-    "email": "your_email"
+- Клонирование удаленного репозитория (см. выше)
+- Создание виртуального окружения и установка зависимостей
+```bash
+cd backend
+python -m venv venv
+. venv/Scripts/activate (windows)
+. venv/bin/activate (linux)
+pip install -r -requirements.txt
+```
+- в foodgram/setting.py замените БД на встроенную SQLite
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
 ```
-При успешной регистрации сервер вернет данные с кодом 200.
-Далее ~~на указанный электронный адрес~~ в папке sent_emails директории проекта будет лог-файл эмитирующий электронное письмо. В нем указан верификационный ключ, его необходимо сохранить для дальнейшего получения JWT-токена
-#### Получение JWT-токена
-Для получения JWT-токена, отправьте POST-запрос на эндпоит `api/v1/auth/token/`, в теле запроса укажите:
-```JSON
-{
-    "username": "your_username",
-    "confirmation_code": "your_code"
-}
+- Примените миграции и соберите статику
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py collectstatic --noinput
 ```
-на энипоинт:
+- Наполнение базы данных ингредиентами и тегами
+```bash
+python manage.py load_ingredients
+```
+- Запуск сервера
+```bash
+python manage.py runserver 
+```
 
-В ответ API вернёт JWT-токен
-~~~JSON
-{
-    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjIwODU1Mzc3LCJqdGkiOiJkY2EwNmRiYTEzNWQ0ZjNiODdiZmQ3YzU2Y2ZjNGE0YiIsInVzZXJfaWQiOjF9.eZfkpeNVfKLzBY7U0h5gMdTwUnGP3LjRn5g8EIvWlVg"
-}
-~~~
+Проект доступен по адресу: [foodgram2023.hopto.org](https://foodgram2023.hopto.org)
 
-`token` - Сам JWT-токен
-Токен используется в заголовке запроса под ключом `Bearer`
-
-
-## Автор
-
-### Василий Вигилянский 
-
-##### IP
-`178.154.224.46`
+Документация к API проекта: [foodgram2023.hopto.org/api/docs/](https://foodgram2023.hopto.org/api/docs/)
