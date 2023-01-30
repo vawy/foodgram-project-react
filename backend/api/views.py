@@ -74,13 +74,13 @@ class UsersViewSet(UserViewSet):
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-            # if subscription.exists():
-            #     subscription.delete()
-            #     return Response(status=status.HTTP_204_NO_CONTENT)
-            # return Response(
-            #     {'error': 'Вы не подписаны на этого пользователя'},
-            #     status=status.HTTP_400_BAD_REQUEST
-            # )
+    # if subscription.exists():
+    #     subscription.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    # return Response(
+    #     {'error': 'Вы не подписаны на этого пользователя'},
+    #     status=status.HTTP_400_BAD_REQUEST
+    # )
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -142,11 +142,11 @@ class RecipeViewSet(ModelViewSet):
         model_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-            # if model_obj.exists():
-            #     model_obj.delete()
-            #     return Response(status=status.HTTP_204_NO_CONTENT)
-            # return Response({'error': 'Этого рецепта нет в избранном.'},
-            #                 status=status.HTTP_400_BAD_REQUEST)
+    # if model_obj.exists():
+    #     model_obj.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    # return Response({'error': 'Этого рецепта нет в избранном.'},
+    #                 status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
