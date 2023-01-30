@@ -51,7 +51,7 @@ the input device is not a TTY.  If you are using mintty, try prefixing the comma
 ### API
 Документация API доступна по следующему эндпоинту:
 
-    http://<project_ip>/redoc
+    http://<project_ip>/api/redoc
 
 #### Регистрация
 Для регистрации отправьте POST-запрос на эндпоит `api/v1/auth/signup/`, в теле запроса укажите:
