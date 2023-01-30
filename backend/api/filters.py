@@ -1,5 +1,5 @@
 from django.db.models import BooleanField, ExpressionWrapper, Q
-from django_filters.rest_framework import CharFilter, FilterSet, filters
+from django_filters.rest_framework import FilterSet, filters
 
 from app.models import Ingredient, Recipe, Tag
 from users.models import CustomUser
