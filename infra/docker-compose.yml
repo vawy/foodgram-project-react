@@ -13,11 +13,6 @@ services:
     expose:
       - "8000"
     restart: always
-    command: >
-      bash -c "python manage.py migrate &&
-      python manage.py collectstatic --no-input &&
-      python manage.py load_ingredients &&
-      gunicorn --bind 0:8000 foodgram.wsgi"
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
