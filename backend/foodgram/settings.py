@@ -15,14 +15,14 @@ SECRET_KEY = os.getenv(
 
 CSRF_TRUSTED_ORIGINS = [
     'http://*localhost',
-    'https://*localhost'
+    'https://*localhost',
+    'foodgram2023.hopto.org',
+    '178.154.224.46'
 ]
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'foodgram2023.hopto.org', '178.154.224.46', 'localhost', 'backend:8000'
-]
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
