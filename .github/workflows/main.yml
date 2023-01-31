@@ -72,7 +72,7 @@ jobs:
 #            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
 #            sudo docker-compose stop
 #            sudo docker-compose rm backend
-            sudo docker-compose down -v
+            sudo docker-compose stop
             sudo docker image prune -a -f
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
