@@ -72,6 +72,8 @@ jobs:
             sudo docker image prune -a -f
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:v1.0
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:v1.0
             touch .env
             echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
