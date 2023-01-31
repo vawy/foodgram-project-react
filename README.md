@@ -125,3 +125,4 @@ python manage.py runserver
 
 Документация к API проекта: [foodgram2023.hopto.org/api/docs/](https://foodgram2023.hopto.org/api/docs/)
 
+d
