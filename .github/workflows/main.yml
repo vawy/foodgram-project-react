@@ -81,10 +81,10 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker-compose up -d
-            sudo docker-compose exec backend python manage.py migrate
-            sudo docker-compose exec backend python manage.py collectstatic --no-input
-            sudo docker-compose exec backend python manage.py load_ingredients
+            sudo docker-compose up -d --build
+            sudo winpty docker-compose exec backend python manage.py migrate
+            sudo winpty docker-compose exec backend python manage.py collectstatic --no-input
+            sudo winpty docker-compose exec backend python manage.py load_ingredients
 
   send_message:
     runs-on: ubuntu-latest
