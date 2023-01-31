@@ -10,11 +10,12 @@ services:
 
   backend:
     image: mforcourses/foodgram_backend:v1.0
+    expose:
+      - "8000"
     restart: always
     volumes:
       - static_value:/app/static/
       - media_value:/app/media/
-      - docs:/app/api/docs/
     depends_on:
       - db
     env_file:
