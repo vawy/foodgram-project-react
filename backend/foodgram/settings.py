@@ -20,7 +20,9 @@ CSRF_TRUSTED_ORIGINS = [
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['foodgram2023.hopto.org', '178.154.224.46', 'localhost']
+ALLOWED_HOSTS = [
+    'foodgram2023.hopto.org', '178.154.224.46', 'localhost'
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
