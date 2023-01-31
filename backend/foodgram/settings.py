@@ -19,7 +19,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://*foodgram2023.hopto.org',
     'https://*foodgram2023.hopto.org',
     'http://*178.154.224.46',
-    'http://*178.154.224.46'
+    'http://*178.154.224.46',
 ]
 
 DEBUG = True
