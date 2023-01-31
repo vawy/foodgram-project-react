@@ -12,6 +12,7 @@ services:
     image: mforcourses/foodgram_backend:v1.0
     restart: always
     volumes:
+      - data:/app/data/
       - static_value:/app/static/
       - media_value:/app/media/
     depends_on:
@@ -42,3 +43,4 @@ volumes:
   static_value:
   media_value:
   postgres:
+  data:
