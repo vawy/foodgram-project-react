@@ -26,9 +26,6 @@ services:
 
   frontend:
     image: mforcourses/foodgram_frontend:v1.0
-#    build:
-#      context: ../frontend
-#      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
 
