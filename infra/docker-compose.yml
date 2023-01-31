@@ -10,6 +10,8 @@ services:
 
   backend:
     image: mforcourses/foodgram_backend:v1.0
+    expose:
+      - "8000"
     restart: always
     volumes:
       - data:/app/data/
@@ -27,7 +29,6 @@ services:
 
   nginx:
     image: nginx:1.21.3-alpine
-    restart: always
     ports:
       - "80:80"
     volumes:
