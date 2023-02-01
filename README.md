@@ -112,7 +112,7 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py collectstatic --noinput
 ```
-- Наполнение базы данных ингредиентами и тегами
+- Наполнение базы данных ингредиентами
 ```bash
 python manage.py load_ingredients
 ```
@@ -124,5 +124,3 @@ python manage.py runserver
 Проект доступен по адресу: [foodgram2023.hopto.org](https://foodgram2023.hopto.org)
 
 Документация к API проекта: [foodgram2023.hopto.org/api/docs/](https://foodgram2023.hopto.org/api/docs/)
-
-d
