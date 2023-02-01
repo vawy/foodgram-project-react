@@ -22,7 +22,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://*178.154.224.46'
 ]
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     'foodgram2023.hopto.org', '178.154.224.46', 'localhost', 'backend'
