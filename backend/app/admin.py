@@ -5,11 +5,20 @@ from .models import (Favorite, Ingredient, IngredientsAmount, Recipe,
 
 
 class IngredientsAmountInline(TabularInline):
+    """
+    Позволяет выводить кол-во ингредиентов в карточке рецепта через модель
+    IngredientsAmount.
+    """
     model = IngredientsAmount
     extra = 1
 
 
 class RecipeAdmin(ModelAdmin):
+    """
+    Кастомное отображение модели Recipe в админке.
+    Выводит в карточке рецепта кол-во добавления в избранное и список покупок.
+    В списке рецептов добавлено поле с тегами.
+    """
     list_display = ('name', 'author', 'display_tags')
     list_filter = ('name', 'author', 'tags')
     search_fields = ('name', 'author__username', 'author__last_name',
@@ -34,12 +43,14 @@ class RecipeAdmin(ModelAdmin):
 
 
 class IngredientAdmin(ModelAdmin):
+    """Кастомное отображение модели Ingredient."""
     list_display = ('name', 'measurement_unit')
     search_fields = ('name',)
     list_filter = ('name',)
 
 
 class IngredientsAmountAdmin(ModelAdmin):
+    """Кастомное отображение модели IngredientsAmount."""
     list_display = ('recipe', 'ingredient', 'amount')
 
 

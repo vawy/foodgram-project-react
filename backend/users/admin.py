@@ -6,6 +6,7 @@ from .models import CustomUser, Follow
 
 
 class CustomUserAdmin(UserAdmin):
+    """Кастомное отображение модели User а админке."""
     list_display = ('username', 'first_name', 'last_name', 'email')
     list_filter = ('email', 'first_name')
     search_fields = ('username', 'email')

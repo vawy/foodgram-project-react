@@ -29,6 +29,7 @@ class UsersViewSet(UserViewSet):
     """
     Вьюсет для работы с пользователями.
     Обработка запросов на создание/получение пользователей.
+    Доступ для всех.
     """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
@@ -38,6 +39,10 @@ class UsersViewSet(UserViewSet):
     @action(methods=['GET'], detail=False,
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
+        """
+        Для метода get выдает подписки.
+        Доступ для авторизванных.
+        """
         user = self.request.user
         authors = CustomUser.objects.filter(followings__user=user)
         page = self.paginate_queryset(authors)
@@ -49,6 +54,10 @@ class UsersViewSet(UserViewSet):
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
+        """
+        Для методов post, delete подписывается/отписывается от автора.
+        Доступ для авторизованных.
+        """
         user = self.request.user
         author = get_object_or_404(CustomUser, id=id)
         subscription = Follow.objects.filter(
@@ -74,14 +83,6 @@ class UsersViewSet(UserViewSet):
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # if subscription.exists():
-    #     subscription.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-    # return Response(
-    #     {'error': 'Вы не подписаны на этого пользователя'},
-    #     status=status.HTTP_400_BAD_REQUEST
-    # )
-
 
 class TagViewSet(ReadOnlyModelViewSet):
     """Вьюсет для получения тегов."""
@@ -92,7 +93,10 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-    """Вьюсет для получения ингердиентов."""
+    """
+    Вьюсет для получения ингердиентов.
+    Поиск по названию.
+    """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (DjangoFilterBackend,)
@@ -103,7 +107,11 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    """Вьюсет для рецептов"""
+    """
+    Вьюсет для рецептов.
+    Фильтрация по автору/тегу/подписке/наличию в списке покупок.
+    Есть пагинация.
+    """
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
@@ -142,12 +150,6 @@ class RecipeViewSet(ModelViewSet):
         model_obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # if model_obj.exists():
-    #     model_obj.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-    # return Response({'error': 'Этого рецепта нет в избранном.'},
-    #                 status=status.HTTP_400_BAD_REQUEST)
-
     @action(methods=['POST', 'DELETE'], detail=True,
             permission_classes=[IsAuthenticated])
     def favorite(self, request, pk=None):
@@ -161,6 +163,10 @@ class RecipeViewSet(ModelViewSet):
     @action(methods=['GET'], detail=False,
             permission_classes=[IsAuthenticated], pagination_class=None)
     def download_shopping_cart(self, request):
+        """
+        Ф-я по добавлению рецептов в список покупок.
+        Доступ для авторизованных.
+        """
         user = request.user
         if not user.shopcarts.exists():
             return Response({'error': 'Список покупок пуст'},

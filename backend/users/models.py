@@ -7,21 +7,16 @@ from rest_framework.exceptions import ValidationError
 class CustomUser(AbstractUser):
     """
     Кастомная модель User.
-    При создании юзера все поля обязательные
+    При создании юзера все поля обязательные.
+    Пользователя с именем 'me' создать нельзя.
     """
-    first_name = CharField(
-        'Имя',
-        max_length=150
-    )
-    last_name = CharField(
-        'Фамилия',
-        max_length=150
-    )
-    email = EmailField(
-        'Email',
-        unique=True,
-        max_length=200
-    )
+    first_name = CharField('Имя',
+                           max_length=150)
+    last_name = CharField('Фамилия',
+                          max_length=150)
+    email = EmailField('Email',
+                       unique=True,
+                       max_length=200)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ('username', 'first_name', 'last_name')
@@ -30,10 +25,8 @@ class CustomUser(AbstractUser):
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         constraints = [
-            UniqueConstraint(
-                fields=('username', 'email'),
-                name='unique_user'
-            )
+            UniqueConstraint(fields=('username', 'email'),
+                             name='unique_user')
         ]
 
     def clean(self):
@@ -51,27 +44,25 @@ class CustomUser(AbstractUser):
 
 
 class Follow(Model):
-    user = ForeignKey(
-        CustomUser,
-        related_name='followers',
-        verbose_name='Подписчик',
-        on_delete=CASCADE
-    )
-    author = ForeignKey(
-        CustomUser,
-        related_name='followings',
-        verbose_name='Автор',
-        on_delete=CASCADE
-    )
+    """
+    Модель подписки на авторов.
+    Подписаться на себя нельзя.
+    """
+    user = ForeignKey(CustomUser,
+                      related_name='followers',
+                      verbose_name='Подписчик',
+                      on_delete=CASCADE)
+    author = ForeignKey(CustomUser,
+                        related_name='followings',
+                        verbose_name='Автор',
+                        on_delete=CASCADE)
 
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         constraints = [
-            UniqueConstraint(
-                fields=['author', 'user'],
-                name='unique_follower'
-            )
+            UniqueConstraint(fields=['author', 'user'],
+                             name='unique_follower')
         ]
 
     def clean(self):
