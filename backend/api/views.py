@@ -60,9 +60,7 @@ class UsersViewSet(UserViewSet):
         """
         user = self.request.user
         author = get_object_or_404(CustomUser, id=id)
-        subscription = Follow.objects.filter(
-            user=user, author=author
-        )
+        subscription = Follow.objects.filter(user=user, author=author)
 
         if request.method == 'POST':
             if subscription.exists():
@@ -179,16 +177,13 @@ class RecipeViewSet(ModelViewSet):
         ).annotate(amount=Sum('amount'))
 
         filename = f'{user.username}_shopping_list.txt'
-        shopping_list = (
-            f'Список покупок\n\n{user.username}\n'
-            f'{datetime.now().strftime("%d/%m/%Y %H:%M")}\n\n'
-        )
+        shopping_list = (f'Список покупок\n\n{user.username}\n'
+                         f'{datetime.now().strftime("%d/%m/%Y %H:%M")}\n\n')
         for ing in ingredients:
             shopping_list += (
                 f'{ing["ingredients"]} - {ing["amount"]}, {ing["measure"]}\n'
             )
-        response = HttpResponse(
-            shopping_list, content_type='text.txt; charset=utf-8'
-        )
+        response = HttpResponse(shopping_list,
+                                content_type='text.txt; charset=utf-8')
         response['Content-Disposition'] = f'attachment; filename={filename}'
         return response

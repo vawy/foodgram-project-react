@@ -13,9 +13,7 @@ class Ingredient(models.Model):
     Уникальные поля: name, measurement_unit.
     Сортировка по полю name(название ингредиента)
     """
-    name = models.CharField('Название',
-                            max_length=100,
-                            db_index=True)
+    name = models.CharField('Название', max_length=100, db_index=True)
     measurement_unit = models.CharField('Единица измерения',
                                         max_length=50)
 
@@ -52,9 +50,7 @@ class Tag(models.Model):
             )
         ]
     )
-    slug = models.SlugField(
-        'Слаг', max_length=100, unique=True,
-    )
+    slug = models.SlugField('Слаг', max_length=100, unique=True)
 
     class Meta:
         verbose_name = 'Тег'
@@ -81,9 +77,7 @@ class Recipe(models.Model):
                                on_delete=models.CASCADE,
                                related_name='recipes',
                                verbose_name='Автор')
-    name = models.CharField(
-        'Название', max_length=256, db_index=True
-    )
+    name = models.CharField('Название', max_length=256, db_index=True)
     ingredients = models.ManyToManyField(Ingredient,
                                          through='IngredientsAmount',
                                          related_name='recipes',
@@ -95,9 +89,7 @@ class Recipe(models.Model):
                               upload_to='recipe_images/%Y/%m/%d',
                               default='static/images/DefaultCardImg.png'
     )
-    text = models.TextField(
-        'Описание', max_length=1000
-    )
+    text = models.TextField('Описание', max_length=1000)
     cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
         null=False,

@@ -68,23 +68,16 @@ DB_PORT=5432
 ```bash
 docker-compose up -d --build
 ```
-- Выполните миграции, соберите статику, создайте суперпользователя
+- Миграции, статика выполняются автоматически. Создайте суперпользователя
 ```bash
-docker-compose exec backend python manage.py makemigrations
-docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py collectstatic --no-input
 docker-compose exec backend python manage.py createsuperuser
 ```
 - Наполните базу данных ингредиентами
 ```bash
 docker-compose exec backend python manage.py load_ingredients
 ```
-- или наполните базу тестовыми данными (включают посты и пользователей)
-```bash
-docker-compose exec backend python manage.py loaddata data/data.json 
-```
-- Стандартная админ-панель Django доступна по адресу [`https://localhost/admin/`](https://localhost/admin/)
-- Документация к проекту доступна по адресу [`https://localhost/api/docs/`](`https://localhost/api/docs/`)
+- Стандартная админ-панель Django доступна по адресу [`http://localhost/admin/`](http://localhost/admin/)
+- Документация к проекту доступна по адресу [`http://localhost/api/docs/`](`http://localhost/api/docs/`)
 
 ### Запуск API проекта в dev-режиме
 
