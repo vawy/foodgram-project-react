@@ -113,7 +113,3 @@ python manage.py load_ingredients
 ```bash
 python manage.py runserver 
 ```
-
-Проект доступен по адресу: [foodgram2023.hopto.org](http://foodgram2023.hopto.org)
-
-Документация к API проекта: [foodgram2023.hopto.org/api/docs/](http://foodgram2023.hopto.org/api/docs/)
